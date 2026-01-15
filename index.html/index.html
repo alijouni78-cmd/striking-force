@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STRIKING FORCE | Academia de Combate</title>
+    <!-- Fuente Agresiva/Deportiva -->
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;500;700&family=Teko:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* --- RESET & BASE --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Oswald', sans-serif;
+            background-color: #050505;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Teko', sans-serif;
+            text-transform: uppercase;
+        }
+
+        a { text-decoration: none; color: white; }
+
+        /* --- BACKGROUND DINÁMICO --- */
+        #dynamic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url('https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?q=80&w=1469&auto=format&fit=crop'); /* Imagen Default: Gym Oscuro */
+            background-size: cover;
+            background-position: center;
+            transition: background-image 0.5s ease-in-out;
+            filter: brightness(0.4) grayscale(0.2);
+        }
+
+        /* Overlay para leer texto */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: -1;
+        }
+
+        /* --- SIDEBAR MENU --- */
+        .sidebar-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #ff0000;
+            transition: transform 0.3s;
+        }
+        .sidebar-toggle:hover { transform: scale(1.1); }
+
+        .sidebar {
+            position: fixed;
+            left: -300px;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: #0f0f0f;
+            border-right: 2px solid #ff0000;
+            z-index: 99;
+            transition: 0.4s ease;
+            padding-top: 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .sidebar.active { left: 0; }
+
+        .sidebar a {
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            border-bottom: 1px solid #333;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background: #ff0000;
+            color: #000;
+            padding-left: 40px;
+        }
+
+        /* --- HERO & SELECTION --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 6rem;
+            color: #ff0000;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            margin-bottom: 10px;
+            line-height: 1;
+            animation: fadeInDown 1s ease;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            margin-bottom: 50px;
+            color: #ccc;
+        }
+
+        .modalities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 100%;
+            margin-bottom: 50px;
+        }
+
+        .card-mode {
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid #333;
+            padding: 40px 20px;
+            cursor: pointer;
+            transition: 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-mode::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 5px; height: 100%;
+            background: #ff0000;
+            transform: scaleY(0);
+            transition: transform 0.4s;
+        }
+
+        .card-mode:hover {
+            transform: translateY(-10px);
+            background: rgba(40, 40, 40, 0.95);
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.2);
+        }
+
+        .card-mode:hover::before { transform: scaleY(1); }
+
+        .card-mode h3 { font-size: 2.5rem; margin-bottom: 10px; }
+        .card-mode p { font-size: 1rem; color: #aaa; font-family: 'Oswald', sans-serif; }
+
+        /* --- INSTRUCTORS SECTION (Hidden by default) --- */
+        #instructors-section {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #ff0000;
+            display: inline-block;
+        }
+
+        .prof-card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+            border: 1px solid #444;
+            display: flex;
+            flex-direction: column; /* Mobile first */
+            max-width: 900px;
+            margin: 0 auto;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        @media(min-width: 768px) {
+            .prof-card { flex-direction: row; }
+        }
+
+        .prof-img {
+            flex: 1;
+            min-height: 300px;
+            background-image: url('https://images.unsplash.com/photo-1595078475328-1ab05d0a6a0e?q=80&w=1000&auto=format&fit=crop'); /* Placeholder generic fighter */
+            background-size: cover;
+            background-position: center;
+        }
+
+        .prof-info {
+            flex: 2;
+            padding: 30px;
+            text-align: left;
+        }
+
+        .prof-name { font-size: 3rem; color: #ff0000; margin-bottom: 10px; }
+        .prof-specs { font-size: 1.2rem; color: #fff; margin-bottom: 20px; font-weight: bold; }
+        .prof-bio { color: #ccc; margin-bottom: 20px; line-height: 1.6; }
+        
+        .achievements ul { list-style: none; }
+        .achievements li { margin-bottom: 5px; color: #fff; }
+        .achievements li i { color: #ff0000; margin-right: 10px; }
+
+        .back-btn {
+            margin-top: 30px;
+            padding: 10px 30px;
+            background: transparent;
+            border: 2px solid #fff;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Teko', sans-serif;
+            text-transform: uppercase;
+        }
+        .back-btn:hover { background: #fff; color: #000; }
+
+        /* --- CONTACT & FOOTER --- */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #25d366;
+            color: white;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            box-shadow: 0 0 20px rgba(37, 211, 102, 0.5);
+            z-index: 100;
+            transition: 0.3s;
+            animation: pulse 2s infinite;
+        }
+        .whatsapp-float:hover { transform: scale(1.1); }
+
+        footer {
+            background: #000;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #333;
+            margin-top: 50px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+
+        .highlight { color: #ff0000; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Fondo Dinámico -->
+    <div id="dynamic-bg"></div>
+    <div class="overlay"></div>
+
+    <!-- Botón WhatsApp Flotante -->
+    <a href="https://wa.me/595986103198" class="whatsapp-float" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Menú Lateral -->
+    <div class="sidebar-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <nav class="sidebar" id="sidebar">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="color:white;">STRIKING FORCE</h2>
+        </div>
+        <a href="#" onclick="showHome(); toggleSidebar()">Inicio</a>
+        <a href="#instructors" onclick="toggleSidebar()">Instructores</a>
+        <a href="#about" onclick="toggleSidebar()">La Academia</a>
+        <a href="https://wa.me/595986103198" target="_blank">Contacto</a>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <div class="container" id="main-content">
+        <h1 class="hero-title">STRIKING <span style="color:#fff">FORCE</span></h1>
+        <p class="hero-subtitle">DONDE SE FORJAN LOS CAMPEONES</p>
+
+        <!-- Selección de Modalidad -->
+        <div id="discipline-selection">
+            <h2 style="margin-bottom: 20px; font-size: 2rem;">SELECCIONA TU CAMINO</h2>
+            <div class="modalities-grid">
+                <!-- Kickboxing -->
+                <div class="card-mode" onclick="showInstructors('kickboxing')">
+                    <h3>KICK BOXING</h3>
+                    <p>Potencia, velocidad y técnica de golpeo explosiva.</p>
+                </div>
+                <!-- Boxeo -->
+                <div class="card-mode" onclick="showInstructors('boxing')">
+                    <h3>BOXEO</h3>
+                    <p>El arte de golpear sin ser golpeado. Defensa y ataque.</p>
+                </div>
+                <!-- Jiu Jitsu -->
+                <div class="card-mode" onclick="showInstructors('bjj')">
+                    <h3>JIU JITSU</h3>
+                    <p>Controla el suelo, controla la pelea. Sumisiones y agarres.</p>
+                </div>
+            </div>
+            
+            <div style="margin-top: 40px; max-width: 600px;">
+                <p>En <strong>Striking Force</strong> no solo entrenamos cuerpos, forjamos mentalidades. 
+                Nuestras instalaciones cuentan con equipo de primera línea para garantizar tu evolución.</p>
+            </div>
+        </div>
+
+        <!-- Sección de Profesores (Oculta al inicio) -->
+        <div id="instructors-section">
+            <h2 class="section-title" id="mode-title">PROFESORES</h2>
+            
+            <!-- Perfil de Lucas -->
+            <div class="prof-card" 
+                 onmouseenter="changeBg('https://images.unsplash.com/photo-1555597673-b21d5c935865?q=80&w=2072&auto=format&fit=crop')" 
+                 onmouseleave="resetBg()">
+                
+                <div class="prof-img"></div> <!-- Aquí podrías poner una foto real de Lucas -->
+                
+                <div class="prof-info">
+                    <h3 class="prof-name">LUCAS <span style="font-size:1.5rem; color:#fff">"EL DESTRUCTOR"</span></h3>
+                    <p class="prof-specs">ESPECIALIDADES: JIU JITSU | KICK BOXING | BOXEO</p>
+                    
+                    <p class="prof-bio">
+                        Con más de 10 años de experiencia en el circuito profesional, Lucas combina la agresividad del Kickboxing holandés con la precisión técnica del Jiu Jitsu brasileño. Su filosofía se basa en la disciplina férrea y la superación constante.
+                    </p>
+                    
+                    <div class="achievements">
+                        <h4>LOGROS & HISTORIAL:</h4>
+                        <ul>
+                            <li><i class="fas fa-trophy"></i> Campeón Nacional de Kickboxing (Invicto 2022-2024)</li>
+                            <li><i class="fas fa-medal"></i> Cinturón Negro en Jiu Jitsu Brasileño</li>
+                            <li><i class="fas fa-fist-raised"></i> Récord Profesional: 15 Victorias - 2 Derrotas</li>
+                            <li><i class="fas fa-star"></i> Entrenador Certificado de Alto Rendimiento</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <a href="https://wa.me/595986103198?text=Hola,%20quiero%20entrenar%20con%20el%20profesor%20Lucas" class="contact-btn" style="background:#ff0000; padding:10px 20px; font-weight:bold; display:inline-block; margin-top:10px;">AGENDAR CLASE</a>
+                    </div>
+                </div>
+            </div>
+
+            <button class="back-btn" onclick="showHome()">VOLVER A MODALIDADES</button>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <h3>STRIKING FORCE ACADEMY</h3>
+        <p>Dirección de la Academia, Asunción, Paraguay</p>
+        <p>Email: contacto@strikingforce.com</p>
+        <div style="margin-top: 10px; font-size: 1.5rem;">
+            <a href="#" style="margin: 0 10px;"><i class="fab fa-instagram"></i></a>
+            <a href="#" style="margin: 0 10px;"><i class="fab fa-facebook"></i></a>
+        </div>
+        <p style="font-size: 0.8rem; margin-top: 10px; color: #555;">&copy; 2026 Striking Force. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // Lógica de navegación y efectos
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('discipline-selection');
+        const instructorsSection = document.getElementById('instructors-section');
+        const bgElement = document.getElementById('dynamic-bg');
+        const modeTitle = document.getElementById('mode-title');
+        
+        // Imagen original del fondo
+        const defaultBg = 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?q=80&w=1469&auto=format&fit=crop';
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+        }
+
+        function showInstructors(mode) {
+            // Ocultar selección, mostrar profesores
+            mainContent.style.display = 'none';
+            instructorsSection.style.display = 'block';
+            
+            // Cambiar título según selección
+            let title = "";
+            let bgImage = "";
+
+            if(mode === 'kickboxing') {
+                title = "INSTRUCTORES DE KICK BOXING";
+                bgImage = "https://images.unsplash.com/photo-1583473848882-f9a5bc7fd2ee?q=80&w=2069&auto=format&fit=crop";
+            } else if (mode === 'boxing') {
+                title = "INSTRUCTORES DE BOXEO";
+                bgImage = "https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?q=80&w=1974&auto=format&fit=crop";
+            } else if (mode === 'bjj') {
+                title = "INSTRUCTORES DE JIU JITSU";
+                bgImage = "https://images.unsplash.com/photo-1564415315967-6525ed26881c?q=80&w=2070&auto=format&fit=crop";
+            }
+
+            modeTitle.innerText = title;
+            // Cambiar fondo al entrar a la sección
+            bgElement.style.backgroundImage = `url('${bgImage}')`;
+            window.scrollTo(0,0);
+        }
+
+        function showHome() {
+            mainContent.style.display = 'block';
+            instructorsSection.style.display = 'none';
+            bgElement.style.backgroundImage = `url('${defaultBg}')`;
+        }
+
+        // Efecto Hover Profesor
+        function changeBg(imageUrl) {
+            bgElement.style.backgroundImage = `url('${imageUrl}')`;
+            bgElement.style.filter = "brightness(0.6) grayscale(0)"; // Más brillante cuando ves al profe
+        }
+
+        function resetBg() {
+            // Vuelve a la imagen de la categoría actual o default
+            // Por simplicidad, volveremos al estado "oscuro"
+            bgElement.style.filter = "brightness(0.4) grayscale(0.2)";
+        }
+
+        // Cerrar sidebar si se hace click fuera
+        document.addEventListener('click', function(event) {
+            const isClickInside = sidebar.contains(event.target);
+            const isButton = document.querySelector('.sidebar-toggle').contains(event.target);
+            
+            if (!isClickInside && !isButton && sidebar.classList.contains('active')) {
+                toggleSidebar();
+            }
+        });
+    </script>
+</body>
+</html>
